@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #111827;
+  --border: #e5e7eb;
+  --muted: #f9fafb;
+  --muted-foreground: #6b7280;
+  --primary: #111827;
+  --primary-foreground: #ffffff;
+  
+  /* Sentiment Colors */
+  --sentiment-positive: #10b981;
+  --sentiment-neutral: #f59e0b;
+  --sentiment-negative: #ef4444;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #111827;
+    --foreground: #f9fafb;
+    --border: #374151;
+    --muted: #1f2937;
+    --muted-foreground: #9ca3af;
+    --primary: #f9fafb;
+    --primary-foreground: #111827;
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-sans), sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Minimalist utilities */
+.card-minimal {
+  @apply bg-[var(--background)] border border-[var(--border)] rounded-lg shadow-sm;
+}
