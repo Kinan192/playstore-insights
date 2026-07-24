@@ -13,7 +13,7 @@ export function OverallSentimentChart({ data, centerText }: OverallSentimentChar
     <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col shadow-sm">
       <h3 className="font-h3 text-h3 text-on-surface flex items-center gap-2 mb-4">
         <span className="material-symbols-outlined text-indigo-500">donut_large</span>
-        Overall Sentiment
+        Sentimen Keseluruhan
       </h3>
       <div className="flex-1 flex flex-col justify-center items-center py-4 min-h-[250px] relative">
         <ResponsiveContainer width="100%" height="100%">
@@ -23,7 +23,15 @@ export function OverallSentimentChart({ data, centerText }: OverallSentimentChar
                 <Cell key={`cell-${index}`} fill={entry.color} />
               ))}
             </Pie>
-            <RechartsTooltip contentStyle={{ borderRadius: '8px', border: '1px solid var(--color-outline-variant)', backgroundColor: 'var(--color-surface-container-lowest)' }} />
+            <RechartsTooltip 
+              contentStyle={{ borderRadius: '8px', border: '1px solid var(--color-outline-variant)', backgroundColor: 'var(--color-surface-container-lowest)' }} 
+              formatter={(value: any, name: any, props: any) => {
+                // Calculate percentage based on the sum of all data items in this chart
+                const total = props.payload.payload ? (data.reduce((acc, cur) => acc + cur.value, 0)) : 1;
+                const percent = ((value / total) * 100).toFixed(1);
+                return [`${value} ulasan (${percent}%)`, name];
+              }}
+            />
           </PieChart>
         </ResponsiveContainer>
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">

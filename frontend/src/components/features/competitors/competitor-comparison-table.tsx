@@ -14,12 +14,12 @@ export function CompetitorComparisonTable({ data, onDelete }: CompetitorComparis
       <table className="w-full text-left border-collapse">
         <thead>
           <tr className="border-b border-outline-variant bg-surface-container-low font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">
-            <th className="p-4 font-medium min-w-[200px]">Application</th>
-            <th className="p-4 font-medium text-right">Avg Rating</th>
-            <th className="p-4 font-medium text-right">Reviews Analyzed</th>
-            <th className="p-4 font-medium text-right">MoM Growth</th>
-            <th className="p-4 font-medium text-right">Positive Sentiment</th>
-            <th className="p-4 font-medium text-center">Trend</th>
+            <th className="p-4 font-medium min-w-[200px]">Aplikasi</th>
+            <th className="p-4 font-medium text-right">Rata-rata Peringkat</th>
+            <th className="p-4 font-medium text-right">Ulasan Dianalisis</th>
+            <th className="p-4 font-medium text-right">Pertumbuhan Bulanan</th>
+            <th className="p-4 font-medium text-right">Sentimen Positif</th>
+            <th className="p-4 font-medium text-center">Tren</th>
             <th className="p-4 font-medium text-center w-12"></th>
           </tr>
         </thead>
@@ -60,7 +60,7 @@ export function CompetitorComparisonTable({ data, onDelete }: CompetitorComparis
                   <button 
                     onClick={() => onDelete(app.id)}
                     className="text-on-surface-variant hover:text-error hover:bg-error-container p-1.5 rounded-full transition-colors flex items-center justify-center"
-                    title="Remove Competitor"
+                    title="Hapus Kompetitor"
                   >
                     <span className="material-symbols-outlined text-[18px]">delete</span>
                   </button>

@@ -2,11 +2,11 @@ import * as React from "react"
 import Link from "next/link"
 
 const navItems = [
-  { name: "Dashboard", href: "/", icon: "dashboard" },
-  { name: "Reviews", href: "/reviews", icon: "rate_review" },
-  { name: "Insights", href: "/insights", icon: "query_stats" },
-  { name: "Competitors", href: "/competitors", icon: "analytics" },
-  { name: "Reports", href: "/reports", icon: "description" },
+  { name: "Beranda", href: "/", icon: "dashboard" },
+  { name: "Ulasan", href: "/reviews", icon: "rate_review" },
+  { name: "Wawasan", href: "/insights", icon: "query_stats" },
+  { name: "Kompetitor", href: "/competitors", icon: "analytics" },
+  { name: "Laporan", href: "/reports", icon: "description" },
 ]
 
 export function Sidebar({ currentPath = "/", isOpen = false, setIsOpen }: { currentPath?: string, isOpen?: boolean, setIsOpen?: (val: boolean) => void }) {
@@ -26,7 +26,7 @@ export function Sidebar({ currentPath = "/", isOpen = false, setIsOpen }: { curr
             <div className="w-8 h-8 rounded-lg bg-primary-container text-on-primary flex items-center justify-center font-bold text-lg">A</div>
             <div>
               <h1 className="text-h3 font-h3 font-semibold text-on-surface">AnalyticsPro</h1>
-              <p className="font-label-sm text-label-sm text-on-surface-variant">Sentiment Analytics</p>
+              <p className="font-label-sm text-label-sm text-on-surface-variant">Analitik Sentimen</p>
             </div>
           </div>
           <button className="md:hidden text-on-surface-variant p-1" onClick={() => setIsOpen && setIsOpen(false)}>
@@ -58,14 +58,6 @@ export function Sidebar({ currentPath = "/", isOpen = false, setIsOpen }: { curr
               </Link>
             )
           })}
-          <Link
-            href="/settings"
-            onClick={() => setIsOpen && setIsOpen(false)}
-            className="flex items-center gap-3 px-3 py-2 text-secondary hover:bg-surface-container-low rounded-lg transition-all duration-200 ease-in-out active:scale-95 group mt-auto"
-          >
-            <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 0" }}>settings</span>
-            <span>Settings</span>
-          </Link>
         </div>
       </nav>
     </>

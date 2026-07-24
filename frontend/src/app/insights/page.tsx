@@ -11,53 +11,61 @@ import { TopKeywordsChart } from "@/components/features/insights/top-keywords-ch
 
 // Mock data
 const sentimentTrendDataApp1 = [
-  { date: "Jan 01", Positive: 120, Neutral: 40, Negative: 30 },
-  { date: "Jan 08", Positive: 132, Neutral: 45, Negative: 25 },
-  { date: "Jan 15", Positive: 101, Neutral: 50, Negative: 20 },
-  { date: "Jan 22", Positive: 145, Neutral: 35, Negative: 15 },
-  { date: "Jan 29", Positive: 160, Neutral: 30, Negative: 10 },
+  { date: "Jan 01", Positif: 120, Netral: 40, Negatif: 30 },
+  { date: "Jan 08", Positif: 132, Netral: 45, Negatif: 25 },
+  { date: "Jan 15", Positif: 101, Netral: 50, Negatif: 20 },
+  { date: "Jan 22", Positif: 145, Netral: 35, Negatif: 15 },
+  { date: "Jan 29", Positif: 160, Netral: 30, Negatif: 10 },
 ]
 
 const sentimentTrendDataApp2 = [
-  { date: "Jan 01", Positive: 90, Neutral: 30, Negative: 40 },
-  { date: "Jan 08", Positive: 85, Neutral: 35, Negative: 50 },
-  { date: "Jan 15", Positive: 110, Neutral: 40, Negative: 35 },
-  { date: "Jan 22", Positive: 100, Neutral: 30, Negative: 45 },
-  { date: "Jan 29", Positive: 125, Neutral: 35, Negative: 30 },
+  { date: "Jan 01", Positif: 90, Netral: 30, Negatif: 40 },
+  { date: "Jan 08", Positif: 85, Netral: 35, Negatif: 50 },
+  { date: "Jan 15", Positif: 110, Netral: 40, Negatif: 35 },
+  { date: "Jan 22", Positif: 100, Netral: 30, Negatif: 45 },
+  { date: "Jan 29", Positif: 125, Netral: 35, Negatif: 30 },
 ]
 
 const sentimentDistributionDataApp1 = [
-  { name: 'Positive', value: 658, color: '#10b981' }, 
-  { name: 'Neutral', value: 200, color: '#94a3b8' },  
-  { name: 'Negative', value: 100, color: '#ef4444' }, 
+  { name: 'Positif', value: 658, color: '#10b981' }, 
+  { name: 'Netral', value: 200, color: '#94a3b8' },  
+  { name: 'Negatif', value: 100, color: '#ef4444' }, 
 ]
 
 const sentimentDistributionDataApp2 = [
-  { name: 'Positive', value: 510, color: '#10b981' }, 
-  { name: 'Neutral', value: 170, color: '#94a3b8' },  
-  { name: 'Negative', value: 200, color: '#ef4444' }, 
+  { name: 'Positif', value: 510, color: '#10b981' }, 
+  { name: 'Netral', value: 170, color: '#94a3b8' },  
+  { name: 'Negatif', value: 200, color: '#ef4444' }, 
 ]
 
 const topKeywordsDataApp1 = [
-  { keyword: "harga murah", count: 320, sentiment: "Positive", fill: "#10b981" },
-  { keyword: "mudah digunakan", count: 250, sentiment: "Positive", fill: "#10b981" },
-  { keyword: "customer service", count: 180, sentiment: "Neutral", fill: "#94a3b8" },
-  { keyword: "proses refund", count: 150, sentiment: "Negative", fill: "#ef4444" },
-  { keyword: "aplikasi error", count: 120, sentiment: "Negative", fill: "#ef4444" },
+  { keyword: "harga murah", count: 320, sentiment: "Positif", fill: "#10b981" },
+  { keyword: "mudah digunakan", count: 250, sentiment: "Positif", fill: "#10b981" },
+  { keyword: "customer service", count: 180, sentiment: "Netral", fill: "#94a3b8" },
+  { keyword: "proses refund", count: 150, sentiment: "Negatif", fill: "#ef4444" },
+  { keyword: "aplikasi error", count: 120, sentiment: "Negatif", fill: "#ef4444" },
 ]
 
 const topKeywordsDataApp2 = [
-  { keyword: "banyak promo", count: 280, sentiment: "Positive", fill: "#10b981" },
-  { keyword: "fitur lengkap", count: 210, sentiment: "Positive", fill: "#10b981" },
-  { keyword: "pilihan bayar", count: 190, sentiment: "Neutral", fill: "#94a3b8" },
-  { keyword: "lambat buka", count: 170, sentiment: "Negative", fill: "#ef4444" },
-  { keyword: "susah login", count: 140, sentiment: "Negative", fill: "#ef4444" },
+  { keyword: "banyak promo", count: 280, sentiment: "Positif", fill: "#10b981" },
+  { keyword: "fitur lengkap", count: 210, sentiment: "Positif", fill: "#10b981" },
+  { keyword: "pilihan bayar", count: 190, sentiment: "Netral", fill: "#94a3b8" },
+  { keyword: "lambat buka", count: 170, sentiment: "Negatif", fill: "#ef4444" },
+  { keyword: "susah login", count: 140, sentiment: "Negatif", fill: "#ef4444" },
 ]
 
 export default function InsightsPage() {
   const [compareMode, setCompareMode] = React.useState(true)
   const [app1, setApp1] = React.useState("Tiket.com")
   const [app2, setApp2] = React.useState("Traveloka")
+
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const qApp1 = params.get("app1");
+    const qApp2 = params.get("app2");
+    if (qApp1) setApp1(qApp1);
+    if (qApp2) setApp2(qApp2);
+  }, []);
   const uniqueApps = ["Tiket.com", "Traveloka", "Agoda"]
 
   const renderAppCharts = (
@@ -80,15 +88,15 @@ export default function InsightsPage() {
       {/* Mini Metrics for this App */}
       <div className="grid grid-cols-3 gap-3">
         <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-3 shadow-sm flex flex-col items-center justify-center">
-          <span className="font-label-sm text-label-sm text-on-surface-variant">Total Reviews</span>
+          <span className="font-label-sm text-label-sm text-on-surface-variant">Total Ulasan</span>
           <span className="font-bold text-xl text-on-surface">{totalReviews}</span>
         </div>
         <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-3 shadow-sm flex flex-col items-center justify-center">
-          <span className="font-label-sm text-label-sm text-on-surface-variant">Avg Score</span>
+          <span className="font-label-sm text-label-sm text-on-surface-variant">Skor Rata-rata</span>
           <span className="font-bold text-xl text-indigo-500">{avgScore}</span>
         </div>
         <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-3 shadow-sm flex flex-col items-center justify-center">
-          <span className="font-label-sm text-label-sm text-on-surface-variant">Positive</span>
+          <span className="font-label-sm text-label-sm text-on-surface-variant">Positif</span>
           <span className="font-bold text-xl text-emerald-500">{positiveRatio}</span>
         </div>
       </div>
@@ -102,12 +110,12 @@ export default function InsightsPage() {
   return (
     <div className="max-w-container-max mx-auto space-y-lg w-full">
       <PageHeader 
-        title="Data-Driven Insights" 
-        description="Aggregated NLP analytics from your processed datasets."
+        title="Wawasan Berbasis Data" 
+        description="Analitik NLP agregat dari kumpulan data yang diproses."
       >
         <CompareToggle checked={compareMode} onChange={setCompareMode} />
         <Button variant="secondary" className="gap-2 bg-surface hover:bg-surface-container-low">
-          <span className="material-symbols-outlined text-[18px]">download</span> Export
+          <span className="material-symbols-outlined text-[18px]">download</span> Ekspor
         </Button>
       </PageHeader>
 

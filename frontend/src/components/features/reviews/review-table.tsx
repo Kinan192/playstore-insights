@@ -23,11 +23,11 @@ export function ReviewTable({ data, showAppColumn = true }: ReviewTableProps) {
       <table className="w-full text-left border-collapse">
         <thead>
           <tr className="border-b border-outline-variant bg-surface-container-low/50 sticky top-0 z-10 backdrop-blur-md">
-            <th className="py-3 px-4 font-label-sm text-label-sm text-on-surface-variant font-medium">User</th>
-            {showAppColumn && <th className="py-3 px-4 font-label-sm text-label-sm text-on-surface-variant font-medium">App</th>}
-            <th className="py-3 px-4 font-label-sm text-label-sm text-on-surface-variant font-medium w-24">Rating</th>
-            <th className="py-3 px-4 font-label-sm text-label-sm text-on-surface-variant font-medium">Review</th>
-            <th className="py-3 px-4 font-label-sm text-label-sm text-on-surface-variant font-medium w-24">Sentiment</th>
+            <th className="py-3 px-4 font-label-sm text-label-sm text-on-surface-variant font-medium">Pengguna</th>
+            {showAppColumn && <th className="py-3 px-4 font-label-sm text-label-sm text-on-surface-variant font-medium">Aplikasi</th>}
+            <th className="py-3 px-4 font-label-sm text-label-sm text-on-surface-variant font-medium w-24">Peringkat</th>
+            <th className="py-3 px-4 font-label-sm text-label-sm text-on-surface-variant font-medium">Ulasan</th>
+            <th className="py-3 px-4 font-label-sm text-label-sm text-on-surface-variant font-medium w-24">Sentimen</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-outline-variant/50">
@@ -67,7 +67,7 @@ export function ReviewTable({ data, showAppColumn = true }: ReviewTableProps) {
                 </p>
               </td>
               <td className="py-4 px-4 align-top">
-                <Badge variant={review.sentiment === "Positive" ? "success" : review.sentiment === "Negative" ? "danger" : "neutral"} className="rounded uppercase text-[10px] px-2 font-bold tracking-wider">
+                <Badge variant={review.sentiment === "Positif" ? "success" : review.sentiment === "Negatif" ? "danger" : "neutral"} className="rounded uppercase text-[10px] px-2 font-bold tracking-wider">
                   {review.sentiment}
                 </Badge>
               </td>

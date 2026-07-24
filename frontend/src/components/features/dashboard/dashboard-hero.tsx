@@ -9,16 +9,16 @@ export function DashboardHero() {
           <span className="material-symbols-outlined text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>monitoring</span>
         </div>
         <div>
-          <h2 className="text-display font-display text-on-surface mb-1">Platform Overview</h2>
+          <h2 className="text-display font-display text-on-surface mb-1">Ringkasan Platform</h2>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-on-surface-variant font-body-sm text-body-sm">
-            <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">database</span> Multiple App Sources</span>
-            <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">smart_toy</span> AI Sentiment Active</span>
+            <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">database</span> Beragam Sumber Aplikasi</span>
+            <span className="flex items-center gap-1"><span className="material-symbols-outlined text-sm">smart_toy</span> Sentimen AI Aktif</span>
           </div>
         </div>
       </div>
       <div className="text-right">
-        <div className="font-label-sm text-label-sm text-on-surface-variant mb-2">Dataset: Universal Play Store</div>
-        <Button className="gap-2"><span className="material-symbols-outlined text-[18px]">sync</span> Run Master Sync</Button>
+        <div className="font-label-sm text-label-sm text-on-surface-variant mb-2">Dataset: Play Store Universal</div>
+        <Button className="gap-2"><span className="material-symbols-outlined text-[18px]">sync</span> Sinkronisasi Master</Button>
       </div>
     </div>
   )

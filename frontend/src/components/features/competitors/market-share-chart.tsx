@@ -13,8 +13,8 @@ export function MarketShareChart({ data, centerText, centerSubText }: MarketShar
   return (
     <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col col-span-1 h-[360px]">
       <div className="border-b border-outline-variant pb-3 mb-4">
-        <h2 className="font-h3 text-h3 text-on-surface">Share of Voice</h2>
-        <p className="font-body-sm text-body-sm text-on-surface-variant">Based on Total Reviews Analyzed</p>
+        <h2 className="font-h3 text-h3 text-on-surface">Pangsa Suara</h2>
+        <p className="font-body-sm text-body-sm text-on-surface-variant">Berdasarkan Total Ulasan Dianalisis</p>
       </div>
       <div className="flex-1 relative flex items-center justify-center">
         <ResponsiveContainer width="100%" height="100%">
@@ -35,7 +35,7 @@ export function MarketShareChart({ data, centerText, centerSubText }: MarketShar
             </Pie>
             <RechartsTooltip 
               contentStyle={{ borderRadius: '8px', border: '1px solid var(--color-outline-variant)', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-              formatter={(value: any) => [`${value}%`, 'Market Share']}
+              formatter={(value: any, name: any, props: any) => [`${value}% (${props.payload.count || 0} Ulasan)`, 'Pangsa Suara']}
             />
             <Legend verticalAlign="middle" align="right" layout="vertical" iconType="circle" />
           </PieChart>

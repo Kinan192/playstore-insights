@@ -1,16 +1,17 @@
 "use client"
 import * as React from "react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { PageHeader } from "@/components/ui/page-header"
 import { MarketShareChart } from "@/components/features/competitors/market-share-chart"
 import { SentimentComparisonChart } from "@/components/features/competitors/sentiment-comparison-chart"
 import { CompetitorComparisonTable } from "@/components/features/competitors/competitor-comparison-table"
+import { AddCompetitorModal } from "@/components/features/competitors/add-competitor-modal"
 
 // Initial Mock Data representing Tiket.com vs Traveloka
 const initialMarketShare = [
-  { name: "Tiket.com", value: 45, color: "#2563eb" },
-  { name: "Traveloka", value: 55, color: "#4f46e5" },
+  { name: "Tiket.com", value: 45, count: 12450, color: "#2563eb" },
+  { name: "Traveloka", value: 55, count: 45200, color: "#4f46e5" },
 ]
 
 const initialTableData = [
@@ -19,7 +20,7 @@ const initialTableData = [
     name: "Tiket.com",
     initial: "T",
     color: "bg-blue-600",
-    subtitle: "Baseline App",
+    subtitle: "Aplikasi Dasar",
     rating: 4.6,
     reviews: "12,450",
     growth: "+15.2%",
@@ -35,7 +36,7 @@ const initialTableData = [
     name: "Traveloka",
     initial: "TV",
     color: "bg-indigo-600",
-    subtitle: "Primary Competitor",
+    subtitle: "Kompetitor Utama",
     rating: 4.5,
     reviews: "45,200",
     growth: "-2.4%",
@@ -49,25 +50,22 @@ const initialTableData = [
 ]
 
 export default function Competitors() {
-  const [compareInput, setCompareInput] = React.useState("")
-  const [fetchCount, setFetchCount] = React.useState("1000")
+  const [isAddModalOpen, setIsAddModalOpen] = React.useState(false)
   
   // States to hold the interactive data
   const [marketShareData, setMarketShareData] = React.useState(initialMarketShare)
   const [tableData, setTableData] = React.useState(initialTableData)
   
-  const handleCompare = () => {
-    if (!compareInput) return
-    
+  const handleAddCompetitor = (name: string, count: string, region: string) => {
     // Create a mock object for the new competitor (e.g. Agoda)
-    const newAppName = compareInput.trim()
+    const newAppName = name.trim()
     const newAppInitial = newAppName.substring(0, 2).toUpperCase()
     
     // Add to Market Share (adjusting values slightly to look realistic)
     const newMarketShare = [
-      { name: "Tiket.com", value: 35, color: "#2563eb" },
-      { name: "Traveloka", value: 45, color: "#4f46e5" },
-      { name: newAppName, value: 20, color: "#059669" } // Emerald green
+      { name: "Tiket.com", value: 35, count: 12450, color: "#2563eb" },
+      { name: "Traveloka", value: 45, count: 45200, color: "#4f46e5" },
+      { name: newAppName, value: 20, count: parseInt(count) || 1000, color: "#059669" } // Emerald green
     ]
     
     // Add to Table / Sentiment Data
@@ -76,9 +74,9 @@ export default function Competitors() {
       name: newAppName,
       initial: newAppInitial,
       color: "bg-emerald-600",
-      subtitle: "New Competitor",
+      subtitle: region, // Use region as subtitle for the mock
       rating: (Math.random() * (4.9 - 3.5) + 3.5).toFixed(1), // Random rating between 3.5 and 4.9
-      reviews: fetchCount,
+      reviews: count,
       growth: "+5.0%",
       growthPositive: true,
       sentimentScore: Math.floor(Math.random() * (90 - 60) + 60),
@@ -90,7 +88,6 @@ export default function Competitors() {
     
     setMarketShareData(newMarketShare)
     setTableData([...tableData, newAppTableData as any])
-    setCompareInput("")
   }
 
   const handleRemove = (idToRemove: string) => {
@@ -106,20 +103,27 @@ export default function Competitors() {
   // Derive Sentiment data from Table Data for the Bar Chart
   const sentimentChartData = tableData.map(app => ({
     name: app.name,
-    Positive: app.positive,
-    Neutral: app.neutral,
-    Negative: app.negative
+    Positif: app.positive,
+    Netral: app.neutral,
+    Negatif: app.negative,
+    totalReviews: parseInt(app.reviews.toString().replace(/,/g, '')) || 0
   }))
 
   return (
     <div className="max-w-container-max mx-auto">
       <PageHeader 
-        title="Competitor Analysis (UPDATED)" 
-        description="Head-to-head comparison between Tiket.com, Traveloka, and other tracked apps."
+        title="Analisis Kompetitor" 
+        description="Perbandingan langsung antara Tiket.com, Traveloka, dan aplikasi terpantau lainnya."
       >
+        <Link href={`/insights?app1=${encodeURIComponent(tableData[0]?.name || 'Tiket.com')}&app2=${encodeURIComponent(tableData[1]?.name || 'Traveloka')}`}>
+          <Button className="gap-2 bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm border-none">
+            <span className="material-symbols-outlined text-[18px]">query_stats</span>
+            Wawasan Mendalam
+          </Button>
+        </Link>
         <Button variant="secondary" className="gap-2">
           <span className="material-symbols-outlined text-[18px]">download</span>
-          Export Report
+          Ekspor Laporan
         </Button>
       </PageHeader>
 
@@ -142,37 +146,22 @@ export default function Competitors() {
             <h2 className="font-h3 text-h3 text-on-surface">Core Metrics Comparison</h2>
             <p className="font-body-sm text-body-sm text-on-surface-variant">Detailed performance breakdown vs top competitors</p>
           </div>
-          <div className="flex items-center gap-3 w-full xl:w-auto mt-4 md:mt-0 overflow-x-auto pb-2 md:pb-0">
-            {/* Pill-shaped Add Competitor Input */}
-            <div className="flex items-center bg-surface-container-lowest rounded-full p-1.5 border border-outline-variant shadow-sm focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all flex-shrink-0">
-              <Input 
-                icon={<span className="material-symbols-outlined text-[18px] text-on-surface-variant">search</span>}
-                placeholder="App Name (e.g. Agoda)" 
-                value={compareInput}
-                onChange={(e) => setCompareInput(e.target.value)}
-                className="border-none bg-transparent w-48 text-body-md focus-visible:ring-0 focus-visible:ring-offset-0"
-              />
-              <div className="w-px h-6 bg-outline-variant mx-1"></div>
-              <div className="flex items-center text-on-surface-variant group relative" title="Reviews to fetch">
-                <span className="material-symbols-outlined text-[18px] ml-3">format_list_numbered</span>
-                <Input 
-                  type="number"
-                  value={fetchCount}
-                  onChange={(e) => setFetchCount(e.target.value)}
-                  placeholder="Count"
-                  className="w-20 bg-transparent border-none text-center px-2 text-body-md focus-visible:ring-0 focus-visible:ring-offset-0"
-                />
-              </div>
-              <Button onClick={handleCompare} disabled={!compareInput} className="gap-2 rounded-full px-4 h-9 ml-2 shadow-sm shrink-0">
-                <span className="material-symbols-outlined text-[18px]">add</span>
-                <span className="hidden sm:inline">Add</span>
-              </Button>
-            </div>
+          <div className="flex items-center gap-3 w-full xl:w-auto mt-4 md:mt-0">
+            <Button onClick={() => setIsAddModalOpen(true)} className="gap-2 rounded-full w-full md:w-auto shadow-sm">
+              <span className="material-symbols-outlined text-[18px]">add</span>
+              Add Competitor
+            </Button>
           </div>
         </div>
         
         <CompetitorComparisonTable data={tableData} onDelete={handleRemove} />
       </div>
+
+      <AddCompetitorModal 
+        isOpen={isAddModalOpen} 
+        onClose={() => setIsAddModalOpen(false)} 
+        onAdd={handleAddCompetitor} 
+      />
     </div>
   )
 }
