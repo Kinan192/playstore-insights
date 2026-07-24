@@ -8,6 +8,8 @@ interface SentimentComparisonChartProps {
 }
 
 export function SentimentComparisonChart({ data }: SentimentComparisonChartProps) {
+  const [activeFilter, setActiveFilter] = React.useState("30D")
+
   return (
     <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex flex-col col-span-1 md:col-span-1 lg:col-span-2 h-[360px]">
       <div className="border-b border-outline-variant pb-3 mb-4 flex justify-between items-center">
@@ -15,10 +17,20 @@ export function SentimentComparisonChart({ data }: SentimentComparisonChartProps
           <h2 className="font-h3 text-h3 text-on-surface">Sentiment Analysis</h2>
           <p className="font-body-sm text-body-sm text-on-surface-variant">Positive vs Negative mentions across platforms</p>
         </div>
-        <div className="flex items-center gap-2 bg-surface-container-low rounded-md p-1">
-          <button className="px-3 py-1 bg-surface-container-lowest rounded shadow-sm text-xs font-medium text-on-surface">7D</button>
-          <button className="px-3 py-1 text-xs font-medium text-on-surface-variant hover:text-on-surface">30D</button>
-          <button className="px-3 py-1 text-xs font-medium text-on-surface-variant hover:text-on-surface">90D</button>
+        <div className="flex items-center gap-1 bg-surface-container-low rounded-md p-1 border border-outline-variant">
+          {["7D", "30D", "90D"].map((range) => (
+            <button 
+              key={range}
+              onClick={() => setActiveFilter(range)}
+              className={`px-3 py-1 rounded text-xs font-medium transition-all ${
+                activeFilter === range 
+                  ? 'bg-surface-container-lowest shadow-sm text-on-surface' 
+                  : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest/50'
+              }`}
+            >
+              {range}
+            </button>
+          ))}
         </div>
       </div>
       <div className="flex-1">
