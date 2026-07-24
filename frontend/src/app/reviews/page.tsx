@@ -47,6 +47,8 @@ export default function ReviewsPage() {
   const [isSyncing, setIsSyncing] = React.useState(false)
   const [app1, setApp1] = React.useState("Tiket.com")
   const [app2, setApp2] = React.useState("Traveloka")
+  const [ratingFilter, setRatingFilter] = React.useState("All Ratings")
+  const [sentimentFilter, setSentimentFilter] = React.useState("All Sentiment")
 
   const handleSync = () => {
     setIsSyncing(true)
@@ -62,21 +64,24 @@ export default function ReviewsPage() {
         title="Reviews Management" 
         description="Analyze and respond to user feedback across all platforms."
       >
-        <div className="flex items-center bg-surface-container-low rounded-lg p-1 border border-outline-variant">
+        <div className="flex items-center bg-surface-container-lowest rounded-full p-1.5 border border-outline-variant shadow-sm focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all">
           <Input 
-            placeholder="App Name (e.g. Agoda)" 
-            className="border-none bg-transparent w-40 px-2 text-sm"
+            icon={<span className="material-symbols-outlined text-[18px] text-on-surface-variant">search</span>}
+            placeholder="Search and fetch app..." 
+            className="border-none bg-transparent w-56 text-body-md focus-visible:ring-0 focus-visible:ring-offset-0"
           />
           <div className="w-px h-6 bg-outline-variant mx-1"></div>
-          <Input 
-            type="number"
-            defaultValue={1000}
-            title="Reviews to fetch per app"
-            className="w-20 bg-transparent border-none text-center px-1"
-          />
-          <Button onClick={handleSync} disabled={isSyncing} className="gap-2 h-8 px-3 ml-1 shrink-0">
+          <div className="flex items-center text-on-surface-variant group relative" title="Number of reviews to fetch">
+            <span className="material-symbols-outlined text-[18px] ml-3">format_list_numbered</span>
+            <Input 
+              type="number"
+              defaultValue={1000}
+              className="w-20 bg-transparent border-none text-center px-2 text-body-md focus-visible:ring-0 focus-visible:ring-offset-0"
+            />
+          </div>
+          <Button onClick={handleSync} disabled={isSyncing} className="gap-2 rounded-full px-5 h-10 ml-2 shadow-sm">
             <span className={`material-symbols-outlined text-[18px] ${isSyncing ? 'animate-spin' : ''}`}>sync</span>
-            {isSyncing ? "Syncing..." : "Sync Data"}
+            {isSyncing ? "Fetching..." : "Fetch Data"}
           </Button>
         </div>
         <Button variant="secondary" className="gap-2">
@@ -140,7 +145,7 @@ export default function ReviewsPage() {
         </div>
         <div className="h-6 w-px bg-outline-variant hidden md:block mx-1"></div>
         {!compareMode && (
-          <div className="text-primary">
+          <div className="text-primary border-r border-outline-variant pr-3 hidden md:block">
             <SearchableSelect 
               value={app1 === "All Apps" ? app1 : "All Apps"} 
               onChange={setApp1} 
@@ -148,17 +153,20 @@ export default function ReviewsPage() {
             />
           </div>
         )}
-        <select className="py-2 pl-3 pr-8 bg-transparent border-none text-on-surface font-label-md text-label-md focus:ring-0 cursor-pointer outline-none">
-          <option>All Ratings</option>
-          <option>5 Stars</option>
-          <option>4 Stars</option>
-        </select>
-        <select className="py-2 pl-3 pr-8 bg-transparent border-none text-on-surface font-label-md text-label-md focus:ring-0 cursor-pointer outline-none">
-          <option>All Sentiment</option>
-          <option>Positive</option>
-          <option>Neutral</option>
-          <option>Negative</option>
-        </select>
+        <SearchableSelect 
+          value={ratingFilter}
+          onChange={setRatingFilter}
+          options={["All Ratings", "5 Stars", "4 Stars", "3 Stars", "2 Stars", "1 Star"]}
+          showSearch={false}
+          className="text-on-surface"
+        />
+        <SearchableSelect 
+          value={sentimentFilter}
+          onChange={setSentimentFilter}
+          options={["All Sentiment", "Positive", "Neutral", "Negative"]}
+          showSearch={false}
+          className="text-on-surface"
+        />
       </div>
 
       {/* Reviews Table Container */}

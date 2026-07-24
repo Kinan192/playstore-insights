@@ -9,9 +9,10 @@ interface SearchableSelectProps {
   options: string[]
   align?: "left" | "center"
   className?: string
+  showSearch?: boolean
 }
 
-export function SearchableSelect({ value, onChange, options, align = "left", className }: SearchableSelectProps) {
+export function SearchableSelect({ value, onChange, options, align = "left", className, showSearch = true }: SearchableSelectProps) {
   const [isOpen, setIsOpen] = React.useState(false)
   const [search, setSearch] = React.useState("")
   const filteredOptions = options.filter(opt => opt.toLowerCase().includes(search.toLowerCase()))
@@ -28,6 +29,7 @@ export function SearchableSelect({ value, onChange, options, align = "left", cla
   return (
     <div className={cn("relative inline-block text-left", className)} ref={wrapperRef}>
       <button 
+        type="button"
         onClick={() => { setIsOpen(!isOpen); setSearch("") }}
         className={cn(
           "flex items-center gap-1 bg-transparent border-none outline-none cursor-pointer hover:bg-surface-container-high px-3 py-1 rounded-md transition-colors",
@@ -43,19 +45,21 @@ export function SearchableSelect({ value, onChange, options, align = "left", cla
           "absolute z-50 mt-1 w-56 rounded-xl bg-surface-container-lowest border border-outline-variant shadow-lg overflow-hidden",
           align === "center" ? "left-1/2 -translate-x-1/2" : "left-0"
         )}>
-          <div className="p-2 border-b border-outline-variant bg-surface-container-low">
-            <div className="flex items-center bg-surface-container-lowest rounded-md px-2 border border-outline-variant focus-within:border-primary focus-within:ring-1 focus-within:ring-primary">
-              <span className="material-symbols-outlined text-[16px] text-on-surface-variant">search</span>
-              <input 
-                type="text" 
-                autoFocus
-                placeholder="Search app..." 
-                className="w-full bg-transparent border-none text-body-sm px-2 py-1.5 focus:outline-none"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
+          {showSearch && (
+            <div className="p-2 border-b border-outline-variant bg-surface-container-low">
+              <div className="flex items-center bg-surface-container-lowest rounded-md px-2 border border-outline-variant focus-within:border-primary focus-within:ring-1 focus-within:ring-primary">
+                <span className="material-symbols-outlined text-[16px] text-on-surface-variant">search</span>
+                <input 
+                  type="text" 
+                  autoFocus
+                  placeholder="Search..." 
+                  className="w-full bg-transparent border-none text-body-sm px-2 py-1.5 focus:outline-none"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
             </div>
-          </div>
+          )}
           <ul className="max-h-60 overflow-auto py-1 custom-scrollbar">
             {filteredOptions.length === 0 ? (
               <li className="px-4 py-3 text-body-sm text-on-surface-variant text-center">No apps found</li>

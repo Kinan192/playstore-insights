@@ -3,7 +3,6 @@ import Link from "next/link"
 
 const navItems = [
   { name: "Dashboard", href: "/", icon: "dashboard" },
-  { name: "Apps", href: "/apps", icon: "apps" },
   { name: "Reviews", href: "/reviews", icon: "rate_review" },
   { name: "Insights", href: "/insights", icon: "query_stats" },
   { name: "Competitors", href: "/competitors", icon: "analytics" },
@@ -27,7 +26,7 @@ export function Sidebar({ currentPath = "/", isOpen = false, setIsOpen }: { curr
             <div className="w-8 h-8 rounded-lg bg-primary-container text-on-primary flex items-center justify-center font-bold text-lg">A</div>
             <div>
               <h1 className="text-h3 font-h3 font-semibold text-on-surface">AnalyticsPro</h1>
-              <p className="font-label-sm text-label-sm text-on-surface-variant">SaaS Dashboard</p>
+              <p className="font-label-sm text-label-sm text-on-surface-variant">Sentiment Analytics</p>
             </div>
           </div>
           <button className="md:hidden text-on-surface-variant p-1" onClick={() => setIsOpen && setIsOpen(false)}>
