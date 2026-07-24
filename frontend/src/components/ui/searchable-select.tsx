@@ -16,7 +16,7 @@ export function SearchableSelect({ value, onChange, options, align = "left", cla
   const [isOpen, setIsOpen] = React.useState(false)
   const [search, setSearch] = React.useState("")
   const filteredOptions = options.filter(opt => opt.toLowerCase().includes(search.toLowerCase()))
-  
+
   const wrapperRef = React.useRef<HTMLDivElement>(null)
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -28,7 +28,7 @@ export function SearchableSelect({ value, onChange, options, align = "left", cla
 
   return (
     <div className={cn("relative inline-block text-left", className)} ref={wrapperRef}>
-      <button 
+      <button
         type="button"
         onClick={() => { setIsOpen(!isOpen); setSearch("") }}
         className={cn(
@@ -39,7 +39,7 @@ export function SearchableSelect({ value, onChange, options, align = "left", cla
         <span className="font-bold text-inherit truncate max-w-[150px]">{value}</span>
         <span className="material-symbols-outlined text-[18px]">expand_more</span>
       </button>
-      
+
       {isOpen && (
         <div className={cn(
           "absolute z-50 mt-1 w-56 rounded-xl bg-surface-container-lowest border border-outline-variant shadow-lg overflow-hidden",
@@ -49,10 +49,10 @@ export function SearchableSelect({ value, onChange, options, align = "left", cla
             <div className="p-2 border-b border-outline-variant bg-surface-container-low">
               <div className="flex items-center bg-surface-container-lowest rounded-md px-2 border border-outline-variant focus-within:border-primary focus-within:ring-1 focus-within:ring-primary">
                 <span className="material-symbols-outlined text-[16px] text-on-surface-variant">search</span>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   autoFocus
-                  placeholder="Search..." 
+                  placeholder="Search..."
                   className="w-full bg-transparent border-none text-body-sm px-2 py-1.5 focus:outline-none"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
@@ -65,7 +65,7 @@ export function SearchableSelect({ value, onChange, options, align = "left", cla
               <li className="px-4 py-3 text-body-sm text-on-surface-variant text-center">No apps found</li>
             ) : (
               filteredOptions.map(opt => (
-                <li 
+                <li
                   key={opt}
                   onClick={() => { onChange(opt); setIsOpen(false); }}
                   className={cn(
