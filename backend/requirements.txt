@@ -1,0 +1,28 @@
+# FastAPI & Server
+fastapi==0.115.0
+uvicorn[standard]==0.30.0
+python-multipart==0.0.9
+
+# Database (SQLAlchemy + MySQL)
+sqlalchemy==2.0.35
+PyMySQL==1.1.1
+cryptography==43.0.0
+
+# Pydantic (validasi data)
+pydantic==2.9.0
+pydantic-settings==2.5.0
+
+# NLP & ML Pipeline
+scikit-learn==1.5.2
+pandas==2.2.3
+numpy==1.26.4
+nltk==3.9.1
+Sastrawi==1.0.1
+joblib==1.4.2
+
+# Play Store Scraper
+google-play-scraper==1.2.7
+
+# Utilities
+python-dotenv==1.0.1
+openpyxl==3.1.5

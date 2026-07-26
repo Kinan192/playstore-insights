@@ -1,43 +1,36 @@
 import * as React from "react"
 import { MetricCard } from "@/components/metric-card"
+import type { Overview } from "@/lib/api"
 
-export function DashboardKPIs() {
+export function DashboardKPIs({ overview }: { overview: Overview | null }) {
+  const total = overview?.total_reviews ?? 0
+  const positif = overview?.sentiment.positif ?? 0
+  const sentimentIndex = total > 0 ? Math.round((positif * 100) / total) : 0
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-md">
       <MetricCard
         title="Aplikasi Terpantau"
         icon="apps"
-        value="12"
-        trend="+2"
-        trendLabel="bulan ini"
-        trendUp={true}
+        value={overview ? String(overview.total_apps) : "…"}
       />
       <MetricCard
         title="Total Ulasan Dianalisis"
         icon="database"
-        value="24.5k"
-        trend="+1.2k"
-        trendLabel="minggu ini"
-        trendUp={true}
+        value={overview ? total.toLocaleString("id-ID") : "…"}
       />
       <MetricCard
         title="Indeks Sentimen Global"
         icon="mood"
-        value="78%"
-        trend="+5%"
-        trendLabel="vs bulan lalu"
-        trendUp={true}
+        value={overview ? `${sentimentIndex}%` : "…"}
+        trendLabel="ulasan positif"
       />
       <MetricCard
-        title="Scraper Aktif"
-        icon="memory"
-        value="Online"
-      >
-        <div className="flex items-center gap-2 mt-2">
-          <div className="w-2 h-2 rounded-full bg-success animate-pulse"></div>
-          <span className="text-body-sm text-on-surface-variant">2 tugas berjalan</span>
-        </div>
-      </MetricCard>
+        title="Rata-rata Skor"
+        icon="star"
+        value={overview ? overview.avg_score.toFixed(2) : "…"}
+        trendLabel="dari 5.0"
+      />
     </div>
   )
 }

@@ -8,82 +8,117 @@ import { CompareToggle } from "@/components/ui/compare-toggle"
 import { SearchableSelect } from "@/components/ui/searchable-select"
 import { PageHeader } from "@/components/ui/page-header"
 import { ReviewTable } from "@/components/features/reviews/review-table"
+import { AddAppModal } from "@/components/features/reviews/add-app-modal"
+import { api, sentimentLabel, type AppStat, type Review } from "@/lib/api"
 
-const reviewsData = [
-  {
-    id: 1,
-    appName: "Tiket.com",
-    user: { name: "Sarah J.", avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuCd0qvp8kMfzAFEgPQTO9d8idKECsjwVlh96lLN7yRNCGHImbq-3Bf_frYWIvWbADvH_l65Q4eA1tWeyCbHwwu-HkaIJrYpppQTkaPvYK6sEJvzmaJlMuUHKlX4c9i4kRWSsVJRwCxkoJ0eTssgpjHw6cwpkX6FXHc2uY79ITtSz9ajLIL5Ro8-r_Ln9NuZDPJ2KafqC-lfXkQxRx6d6TpXFIN6QCnEqnd8bhN1azKFC7-WSvmqb7_E5w", meta: "v5.9.1 • iOS" },
-    rating: 5,
-    title: "Suka dengan dasbor analitik baru ini!",
-    content: "Desain ulangnya sangat fantastis. Jauh lebih mudah menemukan metrik spesifik yang saya butuhkan untuk laporan mingguan. Pustaka grafiknya juga terasa jauh lebih responsif. Kerja bagus tim!",
-    sentiment: "Positif",
-    date: "24 Okt 2026"
-  },
-  {
-    id: 2,
-    appName: "Traveloka",
-    user: { name: "Marcus K.", avatar: "", initials: "MK", meta: "v3.1.0 • Web" },
-    rating: 3,
-    title: "Bagus, tapi tidak ada opsi ekspor",
-    content: "Secara keseluruhan ini adalah alat yang solid, tetapi saya benar-benar butuh kemampuan untuk mengekspor grafik kustom ini langsung ke PDF daripada hanya data CSV. Ini menambah langkah ekstra pada alur kerja saya.",
-    sentiment: "Netral",
-    date: "23 Okt 2026"
-  },
-  {
-    id: 3,
-    appName: "Tiket.com",
-    user: { name: "David R.", avatar: "https://lh3.googleusercontent.com/aida-public/AB6AXuBZ_b84zJ5cknVoIFJ9SnO_V0QK1pcJgrixbxTa1VbPIS5vFHyxrYKrAYX_MNU_Qj1Rz0u7BqKmKqkoS3udLJ35Af6D0CBHKO9ZWaebkTVmeiVGPumAUUho1if8-NTEOK1jPMr8ijyVtAMJCPZrFfmwb6EQksHiqPCZdNPna9PmUgoUzDRuQmHgj31NBlLQZzsgVXmzJVewSI2NoBkVuFEFBvcc3doSpbs9YNe98sA3lVNKNl7r_kKkdg", meta: "v5.8.2 • iOS" },
-    rating: 2,
-    title: "Aplikasi crash saat sinkronisasi",
-    content: "Sejak pembaruan terakhir, aplikasi ini selalu crash setiap kali saya mencoba melakukan sinkronisasi paksa di iPhone 13 saya. Saya sudah menginstal ulang dua kali tetapi masalahnya tetap ada. Sangat membuat frustrasi karena saya mengandalkan ini setiap hari.",
-    sentiment: "Negatif",
-    date: "22 Okt 2026"
-  }
-]
+const RATING_OPTIONS = ["Semua Peringkat", "5 Bintang", "4 Bintang", "3 Bintang", "2 Bintang", "1 Bintang"]
+const SENTIMENT_OPTIONS = ["Semua Sentimen", "Positif", "Netral", "Negatif"]
+
+function toRowData(reviews: Review[], appNames: Map<number, string>) {
+  return reviews.map((r) => ({
+    id: r.id,
+    appName: appNames.get(r.app_id) ?? `App #${r.app_id}`,
+    user: {
+      name: r.user_name,
+      avatar: r.user_avatar ?? "",
+      initials: r.user_name.slice(0, 2).toUpperCase(),
+      meta: "Play Store",
+    },
+    rating: r.score,
+    title: "",
+    content: r.content,
+    sentiment: sentimentLabel(r.sentiment),
+    date: new Date(r.date).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }),
+  }))
+}
 
 export default function ReviewsPage() {
   const [compareMode, setCompareMode] = React.useState(false)
   const [isSyncing, setIsSyncing] = React.useState(false)
-  const [app1, setApp1] = React.useState("Tiket.com")
-  const [app2, setApp2] = React.useState("Traveloka")
-  const [ratingFilter, setRatingFilter] = React.useState("All Ratings")
-  const [sentimentFilter, setSentimentFilter] = React.useState("All Sentiment")
+  const [isAddModalOpen, setIsAddModalOpen] = React.useState(false)
 
-  const handleSync = () => {
+  const [apps, setApps] = React.useState<AppStat[]>([])
+  const [reviews, setReviews] = React.useState<Review[]>([])
+  const [total, setTotal] = React.useState(0)
+
+  const [app1, setApp1] = React.useState("Semua Aplikasi")
+  const [app2, setApp2] = React.useState("")
+  const [ratingFilter, setRatingFilter] = React.useState("Semua Peringkat")
+  const [sentimentFilter, setSentimentFilter] = React.useState("Semua Sentimen")
+  const [search, setSearch] = React.useState("")
+
+  const appNames = React.useMemo(() => new Map(apps.map((a) => [a.id, a.name])), [apps])
+  const uniqueApps = apps.map((a) => a.name)
+
+  const loadApps = React.useCallback(async () => {
+    try {
+      const data = await api.appStats()
+      setApps(data)
+      if (data.length > 0 && !app2) setApp2(data[Math.min(1, data.length - 1)].name)
+    } catch (e) {
+      console.error("Gagal memuat daftar aplikasi:", e)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const loadReviews = React.useCallback(async () => {
+    try {
+      const params: Parameters<typeof api.reviews>[0] = { limit: 200 }
+      if (!compareMode && app1 !== "Semua Aplikasi") {
+        const found = apps.find((a) => a.name === app1)
+        if (found) params.app_id = found.id
+      }
+      if (sentimentFilter !== "Semua Sentimen") params.sentiment = sentimentFilter.toLowerCase()
+      if (ratingFilter !== "Semua Peringkat") params.score = parseInt(ratingFilter)
+      if (search.trim()) params.q = search.trim()
+      const data = await api.reviews(params)
+      setReviews(data.items)
+      setTotal(data.total)
+    } catch (e) {
+      console.error("Gagal memuat ulasan:", e)
+    }
+  }, [apps, app1, compareMode, sentimentFilter, ratingFilter, search])
+
+  React.useEffect(() => { loadApps() }, [loadApps])
+  React.useEffect(() => {
+    const t = setTimeout(loadReviews, search ? 400 : 0) // debounce untuk pencarian
+    return () => clearTimeout(t)
+  }, [loadReviews, search])
+
+  const handleAddApp = async (appId: string, title: string, count: string, region: string) => {
     setIsSyncing(true)
-    setTimeout(() => setIsSyncing(false), 2000)
+    try {
+      const res = await api.triggerScrape({ app_id: appId, title, count: parseInt(count) || 100, region })
+      // poll review count sampai berhenti naik (2x poll stabil) atau max 60 detik
+      let last = -1
+      let stable = 0
+      for (let i = 0; i < 20 && stable < 2; i++) {
+        await new Promise((r) => setTimeout(r, 3000))
+        const { review_count } = await api.scrapeStatus(res.app_id)
+        stable = review_count === last ? stable + 1 : 0
+        last = review_count
+      }
+      await loadApps()
+      await loadReviews()
+    } catch (e) {
+      console.error("Gagal menarik data ulasan:", e)
+    } finally {
+      setIsSyncing(false)
+    }
   }
 
-  // Get unique app names for the dropdown
-  const uniqueApps = Array.from(new Set(reviewsData.map(r => r.appName)))
+  const rows = React.useMemo(() => toRowData(reviews, appNames), [reviews, appNames])
 
   return (
     <div className="max-w-container-max mx-auto space-y-lg">
-      <PageHeader 
-        title="Manajemen Ulasan" 
-        description="Analisis dan tanggapi umpan balik pengguna di semua platform."
+      <PageHeader
+        title="Manajemen Ulasan"
+        description={`Analisis dan tanggapi umpan balik pengguna. ${total} ulasan tersimpan.`}
       >
-        <div className="flex items-center bg-surface-container-lowest rounded-full p-1.5 border border-outline-variant shadow-sm focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all">
-          <Input 
-            icon={<span className="material-symbols-outlined text-[18px] text-on-surface-variant">search</span>}
-            placeholder="Cari dan tarik aplikasi..." 
-            className="border-none bg-transparent w-56 text-body-md focus-visible:ring-0 focus-visible:ring-offset-0"
-          />
-          <div className="w-px h-6 bg-outline-variant mx-1"></div>
-          <div className="flex items-center text-on-surface-variant group relative" title="Jumlah ulasan yang akan ditarik">
-            <span className="material-symbols-outlined text-[18px] ml-3">format_list_numbered</span>
-            <Input 
-              type="number"
-              defaultValue={1000}
-              className="w-20 bg-transparent border-none text-center px-2 text-body-md focus-visible:ring-0 focus-visible:ring-offset-0"
-            />
-          </div>
-          <Button onClick={handleSync} disabled={isSyncing} className="gap-2 rounded-full px-5 h-10 ml-2 shadow-sm">
-            <span className={`material-symbols-outlined text-[18px] ${isSyncing ? 'animate-spin' : ''}`}>sync</span>
-            {isSyncing ? "Menarik..." : "Tarik Data"}
-          </Button>
-        </div>
+        <Button onClick={() => setIsAddModalOpen(true)} disabled={isSyncing} className="gap-2 rounded-full px-5 h-10 shadow-sm">
+          <span className="material-symbols-outlined text-[18px]">{isSyncing ? "sync" : "add"}</span>
+          {isSyncing ? "Menarik data..." : "Tarik Data Aplikasi"}
+        </Button>
         <Button variant="secondary" className="gap-2">
           <span className="material-symbols-outlined text-[18px]">download</span>
           Ekspor
@@ -92,53 +127,32 @@ export default function ReviewsPage() {
 
       {/* Compare Mode Toggle */}
       <div className="flex justify-end">
-        <CompareToggle 
-          checked={compareMode} 
-          onChange={setCompareMode} 
-          label="Mode Banding Layar Terbagi" 
+        <CompareToggle
+          checked={compareMode}
+          onChange={setCompareMode}
+          label="Mode Banding Layar Terbagi"
         />
       </div>
 
-      {/* AI Summary Cards */}
-      <div className={`grid gap-md ${compareMode ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'}`}>
-        <Alert className="relative overflow-hidden shadow-sm border-outline-variant">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-primary-container/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
-          <span className="material-symbols-outlined text-primary bg-secondary-container p-2 rounded-full w-10 h-10 flex items-center justify-center flex-shrink-0 z-10">auto_awesome</span>
-          <div className="flex-1 z-10 relative">
-            <AlertTitle className="flex items-center gap-2 text-h3 font-h3 text-on-surface mb-2 mt-1">
-              {compareMode && <span className="text-primary font-bold mr-1">{app1}</span>} 
-              Wawasan AI
-              <Badge variant="outline" className="text-primary bg-primary-container/10 border-none rounded uppercase font-bold px-2">Beta</Badge>
-            </AlertTitle>
-            <AlertDescription className="text-on-surface-variant leading-relaxed text-body-md font-body-md mt-2">
-              Tren umpan balik terbaru menunjukkan <strong className="text-on-surface font-medium">15% peningkatan sentimen positif</strong> mengenai tata letak pemesanan baru. Namun, beberapa pengguna di v5.8.2 melaporkan <strong className="text-error font-medium">masalah sinkronisasi di iOS</strong>.
+      {isSyncing && (
+        <Alert className="shadow-sm border-outline-variant">
+          <span className="material-symbols-outlined text-primary animate-spin">sync</span>
+          <div className="flex-1">
+            <AlertTitle>Menarik data ulasan…</AlertTitle>
+            <AlertDescription className="text-on-surface-variant">
+              Scraping dan analisis sentimen berjalan di latar belakang. Tabel akan diperbarui otomatis.
             </AlertDescription>
           </div>
         </Alert>
-
-        {compareMode && (
-          <Alert className="relative overflow-hidden shadow-sm border-outline-variant">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
-            <span className="material-symbols-outlined text-indigo-600 bg-indigo-100 p-2 rounded-full w-10 h-10 flex items-center justify-center flex-shrink-0 z-10">auto_awesome</span>
-            <div className="flex-1 z-10 relative">
-              <AlertTitle className="flex items-center gap-2 text-h3 font-h3 text-on-surface mb-2 mt-1">
-                <span className="text-indigo-600 font-bold mr-1">{app2}</span> 
-                Wawasan AI
-                <Badge variant="outline" className="text-indigo-600 bg-indigo-100 border-none rounded uppercase font-bold px-2">Beta</Badge>
-              </AlertTitle>
-              <AlertDescription className="text-on-surface-variant leading-relaxed text-body-md font-body-md mt-2">
-                Pengguna menghargai berbagai pilihan pembayaran. Sumber utama <strong className="text-error font-medium">sentimen negatif (12%)</strong> melibatkan proses pengembalian dana yang tertunda untuk penerbangan yang dibatalkan.
-              </AlertDescription>
-            </div>
-          </Alert>
-        )}
-      </div>
+      )}
 
       {/* Filters & Search Toolbar */}
       <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-3 flex flex-wrap items-center gap-3 shadow-sm relative z-20">
         <div className="flex-1 min-w-[200px]">
-          <Input 
-            placeholder="Saring ulasan..." 
+          <Input
+            placeholder="Saring ulasan..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
             icon={<span className="material-symbols-outlined text-sm">filter_list</span>}
             className="bg-surface-container-low border-none focus-visible:ring-primary-container/50"
           />
@@ -146,24 +160,24 @@ export default function ReviewsPage() {
         <div className="h-6 w-px bg-outline-variant hidden md:block mx-1"></div>
         {!compareMode && (
           <div className="text-primary border-r border-outline-variant pr-3 hidden md:block">
-            <SearchableSelect 
-              value={app1 === "Semua Aplikasi" ? app1 : "Semua Aplikasi"} 
-              onChange={setApp1} 
-              options={["Semua Aplikasi", ...uniqueApps]} 
+            <SearchableSelect
+              value={app1}
+              onChange={setApp1}
+              options={["Semua Aplikasi", ...uniqueApps]}
             />
           </div>
         )}
-        <SearchableSelect 
+        <SearchableSelect
           value={ratingFilter}
           onChange={setRatingFilter}
-          options={["Semua Peringkat", "5 Bintang", "4 Bintang", "3 Bintang", "2 Bintang", "1 Bintang"]}
+          options={RATING_OPTIONS}
           showSearch={false}
           className="text-on-surface"
         />
-        <SearchableSelect 
+        <SearchableSelect
           value={sentimentFilter}
           onChange={setSentimentFilter}
-          options={["Semua Sentimen", "Positif", "Netral", "Negatif"]}
+          options={SENTIMENT_OPTIONS}
           showSearch={false}
           className="text-on-surface"
         />
@@ -175,10 +189,13 @@ export default function ReviewsPage() {
         <div className="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm flex flex-col h-[600px]">
           {compareMode && (
             <div className="bg-surface-container-low border-b border-outline-variant p-2 text-primary flex items-center justify-center">
-              <SearchableSelect value={app1} onChange={setApp1} options={uniqueApps} align="center" />
+              <SearchableSelect value={app1 === "Semua Aplikasi" ? (uniqueApps[0] ?? "") : app1} onChange={setApp1} options={uniqueApps} align="center" />
             </div>
           )}
-          <ReviewTable data={reviewsData.filter(r => !compareMode || r.appName === app1)} showAppColumn={!compareMode} />
+          <ReviewTable
+            data={compareMode ? rows.filter((r) => r.appName === (app1 === "Semua Aplikasi" ? uniqueApps[0] : app1)) : rows}
+            showAppColumn={!compareMode}
+          />
         </div>
 
         {/* Right Table (Compare Mode Only) */}
@@ -187,10 +204,16 @@ export default function ReviewsPage() {
             <div className="bg-surface-container-low border-b border-outline-variant p-2 text-indigo-600 flex items-center justify-center">
               <SearchableSelect value={app2} onChange={setApp2} options={uniqueApps} align="center" />
             </div>
-            <ReviewTable data={reviewsData.filter(r => r.appName === app2)} showAppColumn={false} />
+            <ReviewTable data={rows.filter((r) => r.appName === app2)} showAppColumn={false} />
           </div>
         )}
       </div>
+
+      <AddAppModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onAdd={handleAddApp}
+      />
     </div>
   )
 }
